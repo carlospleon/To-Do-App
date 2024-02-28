@@ -1,0 +1,25 @@
+name: CD
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to deploy'
+        required: true 
+
+jobs:
+  deploy:
+
+    runs-on: self-hosted
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+    
+    - name : Deploy
+      run: |
+        docker stop $(docker ps -a -q)
+        docker rm $(docker ps -a -q)
+        echo "Deployed version: ${{ github.event.inputs.version }}"
+        docker pull juromerop/to-do-app:${{ github.event.inputs.version }}
+        docker run -d -p 3000:3000 juromerop/to-do-app:${{ github.event.inputs.version }}
